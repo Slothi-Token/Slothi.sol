@@ -402,8 +402,6 @@ library Address {
  */
 contract Ownable is Context {
     address private _owner;
-    address private _previousOwner;
-    uint256 private _lockTime;
 
     event OwnershipTransferred(address indexed previousOwner, address indexed newOwner);
 
@@ -419,7 +417,7 @@ contract Ownable is Context {
     /**
      * @dev Returns the address of the current owner.
      */
-    function owner() public view returns (address) {
+    function owner() public view virtual returns (address) {
         return _owner;
     }
 
@@ -427,11 +425,11 @@ contract Ownable is Context {
      * @dev Throws if called by any account other than the owner.
      */
     modifier onlyOwner() {
-        require(_owner == _msgSender(), "Ownable: caller is not the owner");
+        require(owner() == _msgSender(), "Ownable: caller is not the owner");
         _;
     }
 
-     /**
+    /**
      * @dev Leaves the contract without owner. It will not be possible to call
      * `onlyOwner` functions anymore. Can only be called by the current owner.
      *
@@ -452,27 +450,9 @@ contract Ownable is Context {
         emit OwnershipTransferred(_owner, newOwner);
         _owner = newOwner;
     }
-
-    function geUnlockTime() public view returns (uint256) {
-        return _lockTime;
-    }
-
-    //Locks the contract for owner for the amount of time provided
-    function lock(uint256 time) public virtual onlyOwner {
-        _previousOwner = _owner;
-        _owner = address(0);
-        _lockTime = now + time;
-        emit OwnershipTransferred(_owner, address(0));
-    }
-    
-    //Unlocks the contract for owner when _lockTime is exceeds
-    function unlock() public virtual {
-        require(_previousOwner == msg.sender, "You don't have permission to unlock");
-        require(now > _lockTime , "Contract is locked until 7 days");
-        emit OwnershipTransferred(_owner, _previousOwner);
-        _owner = _previousOwner;
-    }
 }
+   
+
 
 // pragma solidity >=0.5.0;
 
@@ -707,13 +687,13 @@ contract SLOTHI is Context, IERC20, Ownable {
     uint256 private _tFeeTotal;
 
     string private _name = "SLOTHI";
-    string private _symbol = "SLT";
+    string private _symbol = "SLO";
     uint8 private _decimals = 9;
     
-    uint256 public _taxFee = 7;
+    uint256 public _taxFee = 5;
     uint256 private _previousTaxFee = _taxFee;
     
-    uint256 public _liquidityFee = 3;   
+    uint256 public _liquidityFee = 4;   
     uint256 private _previousLiquidityFee = _liquidityFee;
 
     IUniswapV2Router02 public immutable uniswapV2Router;
@@ -725,7 +705,7 @@ contract SLOTHI is Context, IERC20, Ownable {
     uint256 public _maxTxAmount = 1000000000000000 * 10**9;
     uint256 private numTokensSellToAddToLiquidity = 100000000000000 * 10**9;
     address private _BurnWallet;
-    uint256 private constant _Burn_FEE = 300; // 3%
+    uint256 private constant _Burn_FEE = 400; // 4%
     event MinTokensBeforeSwapUpdated(uint256 minTokensBeforeSwap);
     event SwapAndLiquifyEnabledUpdated(bool enabled);
     event SwapAndLiquify(
@@ -743,7 +723,10 @@ contract SLOTHI is Context, IERC20, Ownable {
     constructor (address BurnWallet) public {
         _rOwned[_msgSender()] = _rTotal;
         
-        IUniswapV2Router02 _uniswapV2Router = IUniswapV2Router02(0x05fF2B0DB69458A0750badebc4f9e13aDd608C7F);
+           IUniswapV2Router02 _uniswapV2Router = IUniswapV2Router02(0x10ED43C718714eb63d5aA57B78B54704E256024E);
+         //  IUniswapV2Router02 _uniswapV2Router = IUniswapV2Router02(0xD99D1c33F9fC3444f8101754aBC46c52416550D1);
+        
+        
          // Create a uniswap pair for this new token
         uniswapV2Pair = IUniswapV2Factory(_uniswapV2Router.factory())
             .createPair(address(this), _uniswapV2Router.WETH());
@@ -823,7 +806,9 @@ contract SLOTHI is Context, IERC20, Ownable {
   function getBurnWallet() public view returns (address) {
         return _BurnWallet;
     }
-
+    
+	
+	
     function setBurnWallet(address BurnWallet) external onlyOwner()  {
         require(!_isExcluded[BurnWallet], "Can't be excluded address");
         _BurnWallet = BurnWallet;
@@ -898,21 +883,7 @@ contract SLOTHI is Context, IERC20, Ownable {
     function includeInFee(address account) public onlyOwner {
         _isExcludedFromFee[account] = false;
     }
-    
-    function setTaxFeePercent(uint256 taxFee) external onlyOwner() {
-        _taxFee = taxFee;
-    }
-    
-    function setLiquidityFeePercent(uint256 liquidityFee) external onlyOwner() {
-        _liquidityFee = liquidityFee;
-    }
-   
-    function setMaxTxPercent(uint256 maxTxPercent) external onlyOwner() {
-        _maxTxAmount = _tTotal.mul(maxTxPercent).div(
-            10**2
-        );
-    }
-
+	
     function setSwapAndLiquifyEnabled(bool _enabled) public onlyOwner {
         swapAndLiquifyEnabled = _enabled;
         emit SwapAndLiquifyEnabledUpdated(_enabled);
