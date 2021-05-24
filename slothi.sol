@@ -1,5 +1,5 @@
 /**
- *Submitted for verification at BscScan.com on 2021-05-15
+ *Submitted for verification at BscScan.com on 2021-05-24
  */
 /**
  *
@@ -688,10 +688,10 @@ contract SLOTHI is Context, IERC20, Ownable {
     string private _symbol = "SLT";
     uint8 private _decimals = 9;
     
-    uint256 public _taxFee = 7;
+    uint256 public _taxFee = 5;
     uint256 private _previousTaxFee = _taxFee;
     
-    uint256 public _liquidityFee = 3;   
+    uint256 public _liquidityFee = 4;   
     uint256 private _previousLiquidityFee = _liquidityFee;
 
     IUniswapV2Router02 public immutable uniswapV2Router;
@@ -703,7 +703,7 @@ contract SLOTHI is Context, IERC20, Ownable {
     uint256 public _maxTxAmount = 1000000000000000 * 10**9;
     uint256 private numTokensSellToAddToLiquidity = 100000000000000 * 1**9;
     address private _BurnWallet;
-    uint256 private constant _Burn_FEE = 300; // 3%
+    uint256 private constant _Burn_FEE = 400; // 4%
     event MinTokensBeforeSwapUpdated(uint256 minTokensBeforeSwap);
     event SwapAndLiquifyEnabledUpdated(bool enabled);
     event SwapAndLiquify(
