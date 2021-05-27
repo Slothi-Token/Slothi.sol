@@ -1,3 +1,6 @@
+/**
+ *Submitted for verification at BscScan.com on 2021-05-27
+*/
 /** Changed things about the functionallity if transfer function
 Changed burn fee to use same method as liquidity fee
 Changed reciever of added liquidity
